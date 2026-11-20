@@ -1,0 +1,15 @@
+{
+  "mcp": {
+    "servers": {
+      "unity": {
+        "type": "local",
+        "command": [
+          "C:\\Users\\28950\\.unity\\relay\\relay_win.exe",
+          "--mcp",
+          "--project-path",
+          "D:\\Applications\\unityproject\\Tarot"
+        ]
+      }
+    }
+  }
+}
