@@ -2,6 +2,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Tarot.Game;
 
 public class MainMenu : MonoBehaviour
 {
@@ -27,8 +28,8 @@ public class MainMenu : MonoBehaviour
     {
         ToggleAllCg_Menu(false).Play().OnComplete(() =>
         {
-            GameManager.instance.CurrentState = GameState.LEVELSELECT;
-            SceneManager.LoadScene(GameManager.SCENE_LEVELSELECT);
+            GameSession.Instance.DiscardRun();
+            SceneManager.LoadScene("Layer");
         });
     }
 
