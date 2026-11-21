@@ -15,7 +15,7 @@ namespace Tarot.Game
         RectTransform m_Rect;
         bool m_Dragging;
 
-        public void Setup(CardInstance card, CombatController controller, Vector2 size)
+        public void Setup(CardInstance card, CombatController controller, Vector2 size, bool highlight = false)
         {
             Card = card;
             Controller = controller;
@@ -27,12 +27,16 @@ namespace Tarot.Game
             var image = GetComponent<Image>();
             var baseColor = card.Owner == Owner.Player ? UiFactory.PlayerCard : UiFactory.EnemyCard;
             image.color = card.IsReversed ? Color.Lerp(baseColor, new Color(0.28f, 0.28f, 0.34f), 0.35f) : baseColor;
+            if (highlight)
+            {
+                image.color = Color.Lerp(image.color, UiFactory.Accent, 0.55f);
+            }
             image.raycastTarget = true;
 
             var outline = gameObject.GetComponent<Outline>();
             if (outline == null) outline = gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, 0.35f);
-            outline.effectDistance = new Vector2(2f, -2f);
+            outline.effectColor = highlight ? UiFactory.Accent : new Color(0f, 0f, 0f, 0.35f);
+            outline.effectDistance = highlight ? new Vector2(4f, -4f) : new Vector2(2f, -2f);
 
             bool compact = size.y < 160f;
             float width = size.x;

@@ -22,6 +22,7 @@ namespace Tarot.Game
         public TextMeshProUGUI StatusText;
         public TextMeshProUGUI LogText;
         public TextMeshProUGUI AntiDefyText;
+        public TextMeshProUGUI ResolvingText;
         public Button StartButton;
         public Button PauseButton;
         public Button DirectionButton;
@@ -38,6 +39,7 @@ namespace Tarot.Game
         public bool IsResolving;
 
         readonly List<SlotView> m_Slots = new List<SlotView>();
+        int m_ResolvingSlot = -1;
         Resolution[] m_Resolutions;
         int m_ResolutionIndex;
         int m_Volume;
@@ -92,7 +94,7 @@ namespace Tarot.Game
             var title = UiFactory.CreateText(topBar, "Title", "FATE SEQUENCE", 26, UiFactory.Text, TextAlignmentOptions.Left);
             UiFactory.SetAnchored((RectTransform)title.transform, new Vector2(-300, 0), new Vector2(1000, 50));
             PauseButton = UiFactory.CreateButton(topBar, "Pause", "PAUSE", UiFactory.PanelAlt,
-                new Vector2(840, 0), new Vector2(120, 48), TogglePause);
+                new Vector2(820, 0), new Vector2(150, 48), TogglePause);
 
             SequenceRoot = UiFactory.CreatePanel(CanvasRect, "Sequence", UiFactory.Panel, false);
             UiFactory.SetAnchored(SequenceRoot, new Vector2(0, 220), new Vector2(1500, 260));
@@ -113,6 +115,9 @@ namespace Tarot.Game
             StatusText = UiFactory.CreateText(CanvasRect, "Status", "", 20, UiFactory.Text);
             UiFactory.SetAnchored((RectTransform)StatusText.transform, new Vector2(0, 60), new Vector2(1500, 40));
 
+            ResolvingText = UiFactory.CreateText(CanvasRect, "ResolvingText", "", 18, UiFactory.Accent);
+            UiFactory.SetAnchored((RectTransform)ResolvingText.transform, new Vector2(0, 390), new Vector2(1000, 30));
+
             AntiDefyText = UiFactory.CreateText(CanvasRect, "AntiDefyHint", "", 15, UiFactory.Accent);
             UiFactory.SetAnchored((RectTransform)AntiDefyText.transform, new Vector2(0, -5), new Vector2(1500, 30));
 
@@ -132,7 +137,7 @@ namespace Tarot.Game
             UiFactory.Stretch((RectTransform)LogText.transform, 12, 12, 12, 12);
 
             StartButton = UiFactory.CreateButton(CanvasRect, "Start", "START RESOLUTION",
-                new Color(0.28f, 0.48f, 0.34f), new Vector2(0, -500), new Vector2(360, 62), OnStartResolution);
+                new Color(0.28f, 0.48f, 0.34f), new Vector2(0, -500), new Vector2(440, 62), OnStartResolution);
             DirectionButton = UiFactory.CreateButton(CanvasRect, "Direction", "DIR: FWD", UiFactory.PanelAlt,
                 new Vector2(320, -500), new Vector2(220, 62), ToggleDirection);
 
@@ -265,14 +270,14 @@ namespace Tarot.Game
                     var cardRt = UiFactory.CreatePanel(slotView.transform, "Card", Color.clear);
                     UiFactory.SetAnchored(cardRt, Vector2.zero, new Vector2(150, 210));
                     var view = cardRt.gameObject.AddComponent<CardView>();
-                    view.Setup(slot.Card, this, new Vector2(150, 210));
+                    view.Setup(slot.Card, this, new Vector2(150, 210), IsResolving && m_ResolvingSlot == slotView.Index);
                 }
             }
 
             UiFactory.ClearChildren(HandRoot);
             var hand = State.Deck.Hand;
-            float cardWidth = 78f;
-            float cardHeight = 110f;
+            float cardWidth = Mathf.Clamp((1400f - Mathf.Max(0, hand.Count - 1) * 4f) / Mathf.Max(1, hand.Count), 76f, 90f);
+            float cardHeight = cardWidth * 1.4f;
             float gap = 4f;
             float total = hand.Count * cardWidth + Mathf.Max(0, hand.Count - 1) * gap;
             float start = -total * 0.5f + cardWidth * 0.5f;
@@ -309,6 +314,16 @@ namespace Tarot.Game
                 LogText.text = string.Join("\n", State.Log.Skip(from));
             }
             else LogText.text = "";
+
+            if (ResolvingText != null)
+            {
+                var resolvingSlot = m_ResolvingSlot >= 0 && m_ResolvingSlot < State.Sequence.Slots.Length
+                    ? State.Sequence.Slots[m_ResolvingSlot]
+                    : null;
+                ResolvingText.text = IsResolving && resolvingSlot != null && resolvingSlot.Card != null
+                    ? "RESOLVING: " + resolvingSlot.Card.Def.Name
+                    : "";
+            }
 
             var label = DirectionButton.GetComponentInChildren<TextMeshProUGUI>();
             if (label != null) label.text = State.PlayerBackward ? "DIR: BACKWARD" : "DIR: FORWARD";
@@ -416,15 +431,21 @@ namespace Tarot.Game
                     if (State.Phase == CombatPhase.Lost) break;
                     var slot = State.Sequence.Slots[index];
                     if (slot.Card == null) continue;
+                    m_ResolvingSlot = index;
                     State.Log.Add("-- Slot " + (index + 1) + " --");
+                    RenderAll();
+                    yield return new WaitForSeconds(0.12f);
                     CombatEngine.ResolveSlot(State, plan, index);
                     RenderAll();
                     yield return new WaitForSeconds(0.22f);
+                    m_ResolvingSlot = -1;
                     if (State.Phase == CombatPhase.Lost) break;
                     if (State.AllEnemiesDead) break;
                 }
                 if (State.Phase == CombatPhase.Lost || State.AllEnemiesDead) break;
             }
+
+            m_ResolvingSlot = -1;
 
             if (State.Phase == CombatPhase.Lost)
             {
@@ -456,6 +477,7 @@ namespace Tarot.Game
         void ShowResult(bool win)
         {
             if (State == null) return;
+            m_ResolvingSlot = -1;
             State.Phase = win ? CombatPhase.Won : CombatPhase.Lost;
             IsResolving = true;
             if (win) GameSession.Instance.SaveCombat(State);

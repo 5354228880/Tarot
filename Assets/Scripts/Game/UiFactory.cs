@@ -20,7 +20,7 @@ namespace Tarot.Game
         public static readonly Color Bad = new Color(0.95f, 0.45f, 0.45f);
 
         // Global readability scale for runtime-built UI.
-        public const float FontScale = 1.22f;
+        public const float FontScale = 1.8f;
 
         public static Canvas CreateCanvas(string name)
         {
