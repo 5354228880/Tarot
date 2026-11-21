@@ -132,7 +132,7 @@ namespace Tarot.Game
             UiFactory.Stretch((RectTransform)LogText.transform, 12, 12, 12, 12);
 
             StartButton = UiFactory.CreateButton(CanvasRect, "Start", "START RESOLUTION",
-                new Color(0.28f, 0.48f, 0.34f), new Vector2(0, -500), new Vector2(280, 62), OnStartResolution);
+                new Color(0.28f, 0.48f, 0.34f), new Vector2(0, -500), new Vector2(360, 62), OnStartResolution);
             DirectionButton = UiFactory.CreateButton(CanvasRect, "Direction", "DIR: FWD", UiFactory.PanelAlt,
                 new Vector2(320, -500), new Vector2(220, 62), ToggleDirection);
 

@@ -16,6 +16,7 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
+        UiFactory.ScaleFonts(transform, 1.12f);
         ToggleCg(menuCg,true);
         ToggleTxt(titleText,true);
         if(settingsPanel != null)

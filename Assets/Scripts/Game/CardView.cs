@@ -38,22 +38,25 @@ namespace Tarot.Game
             float width = size.x;
             float height = size.y;
 
-            var name = UiFactory.CreateText(transform, "Name", card.Def.Name, compact ? 11 : 16, Color.black,
+            var name = UiFactory.CreateText(transform, "Name", card.Def.Name, compact ? 10 : 16, Color.black,
                 TextAlignmentOptions.TopLeft);
-            UiFactory.SetAnchored((RectTransform)name.transform, new Vector2(0, height * 0.5f - (compact ? 16f : 24f)),
-                new Vector2(width - 12f, compact ? 26f : 38f));
+            UiFactory.SetAnchored((RectTransform)name.transform,
+                new Vector2(0, compact ? 31f : 65f),
+                new Vector2(width - (compact ? 8f : 12f), compact ? 18f : 40f));
             name.enableWordWrapping = true;
 
             var effect = UiFactory.CreateText(transform, "Effect", CombatEngine.CardText(card), compact ? 8 : 11,
                 new Color(0.1f, 0.1f, 0.14f), TextAlignmentOptions.TopLeft);
-            UiFactory.SetAnchored((RectTransform)effect.transform, new Vector2(0, compact ? -12f : -14f),
-                new Vector2(width - 12f, compact ? 78f : 118f));
+            UiFactory.SetAnchored((RectTransform)effect.transform,
+                new Vector2(0, compact ? -20f : -18f),
+                new Vector2(width - (compact ? 10f : 12f), compact ? 58f : 96f));
             effect.overflowMode = TextOverflowModes.Overflow;
 
-            var mark = UiFactory.CreateText(transform, "Mark", card.IsReversed ? "REV" : "UP", compact ? 9 : 11,
+            var mark = UiFactory.CreateText(transform, "Mark", card.IsReversed ? "REV" : "UP", compact ? 8 : 11,
                 new Color(0.15f, 0.15f, 0.2f), TextAlignmentOptions.TopRight);
-            UiFactory.SetAnchored((RectTransform)mark.transform, new Vector2(width * 0.5f - 26f, height * 0.5f - 10f),
-                new Vector2(42f, 18f));
+            UiFactory.SetAnchored((RectTransform)mark.transform,
+                new Vector2(width * 0.5f - (compact ? 16f : 20f), compact ? 46f : 95f),
+                compact ? new Vector2(32f, 12f) : new Vector2(38f, 18f));
 
             if (card.Owner == Owner.Enemy)
             {

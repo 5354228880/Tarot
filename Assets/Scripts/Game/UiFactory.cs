@@ -19,6 +19,9 @@ namespace Tarot.Game
         public static readonly Color Good = new Color(0.55f, 0.90f, 0.65f);
         public static readonly Color Bad = new Color(0.95f, 0.45f, 0.45f);
 
+        // Global readability scale for runtime-built UI.
+        public const float FontScale = 1.22f;
+
         public static Canvas CreateCanvas(string name)
         {
             var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -68,7 +71,7 @@ namespace Tarot.Game
             var label = go.AddComponent<TextMeshProUGUI>();
             if (TMP_Settings.defaultFontAsset != null) label.font = TMP_Settings.defaultFontAsset;
             label.text = text;
-            label.fontSize = size;
+            label.fontSize = size * FontScale;
             label.color = color;
             label.alignment = alignment;
             label.raycastTarget = false;
@@ -125,6 +128,14 @@ namespace Tarot.Game
         {
             var label = button.GetComponentInChildren<TextMeshProUGUI>();
             if (label != null) label.text = text;
+        }
+
+        public static void ScaleFonts(Transform root, float factor)
+        {
+            foreach (var label in root.GetComponentsInChildren<TextMeshProUGUI>(true))
+            {
+                label.fontSize *= factor;
+            }
         }
     }
 }
