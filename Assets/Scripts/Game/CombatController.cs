@@ -431,10 +431,11 @@ namespace Tarot.Game
                     if (State.Phase == CombatPhase.Lost) break;
                     var slot = State.Sequence.Slots[index];
                     if (slot.Card == null) continue;
-                    m_ResolvingSlot = index;
+                    bool skipped = plan.Skip.Contains(index);
+                    m_ResolvingSlot = skipped ? -1 : index;
                     State.Log.Add("-- Slot " + (index + 1) + " --");
                     RenderAll();
-                    yield return new WaitForSeconds(0.12f);
+                    yield return new WaitForSeconds(skipped ? 0.05f : 0.12f);
                     CombatEngine.ResolveSlot(State, plan, index);
                     RenderAll();
                     yield return new WaitForSeconds(0.22f);
